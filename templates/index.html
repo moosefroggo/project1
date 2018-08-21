@@ -1,0 +1,11 @@
+<body>
+    {% if logged_in %}
+    <h1>Welcome back</h1>
+    <form action="{{url_for('search')}}", method="POST">
+        <input type="search" name="query" placeholder="Enter ISBN or Title or Author name">
+        <button type="submit">Search</button>
+    </form>
+    {% else %}
+    <h1>To search for books please log in</h1>
+    {% endif %}
+</body>

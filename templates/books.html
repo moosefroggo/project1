@@ -1,0 +1,13 @@
+<body>
+    <ul>
+    {% for book in books %}
+        <li>
+            <a id="{{book['isbn']}}" href="{{url_for('book', isbn = book['isbn'])}}">{{ book['title'] }}</a>
+            <p>{{book['isbn']}}</p>
+            <p>{{book['author']}}</p>
+            <p>{{book['year']}}</p>
+        </li>
+        <br>
+    {% endfor %}
+    </ul>
+</body>

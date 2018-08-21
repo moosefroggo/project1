@@ -1,0 +1,10 @@
+<body>
+    <h1>Book Name: {{ book_result['title'] }}</h1>
+    <h2>ISBN: {{ book_result['isbn'] }}</h2>
+    <h3>Author: {{ book_result['author'] }}</h3>
+    <h4>Release Year: {{ book_result['year'] }}</h4>
+    {% for b in book_data %}
+        <p><strong>Total ratings: </strong>{{ b['work_ratings_count'] }}</p>
+        <p><strong>Average ratings: </strong>{{ b['average_rating'] }}</p>
+    {% endfor %}
+</body>
