@@ -2,7 +2,7 @@ from flask import Flask, session, request, render_template, redirect, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-import requests
+import requests, goodreads
 app = Flask(__name__)
 
 # Check for environment variable
@@ -19,7 +19,7 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 #Set up goodreads api key
-api_key = "Q0mLjb2BiiVV2k1KAASYWA"
+api_key = goodreads.API_KEY()
 
 @app.route("/")
 def index():

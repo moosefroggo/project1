@@ -106,3 +106,6 @@ venv.bak/
 
 #batch file containing sensitive data
 *.bat
+
+#filter out the script containing API keys
+goodreads.py
