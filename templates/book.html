@@ -7,4 +7,20 @@
         <p><strong>Total ratings: </strong>{{ b['work_ratings_count'] }}</p>
         <p><strong>Average ratings: </strong>{{ b['average_rating'] }}</p>
     {% endfor %}
+    <br>
+    {% for review in reviews_data %}
+    <p>{{ review["username"] }}</p><p>{{ review["rating"] }}</p>
+    <p>{{ review["review"] }}</p>
+    {% endfor %}
+    {% if not did_user_review %}
+        <form method="POST", action="{{ url_for('book', isbn = book_result['isbn']) }}">
+            <select name = "score">
+                {% for i in range(1,6) %}
+                <option value = "{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name = "review">
+            <button type="submit">Submit Review</button>
+        </form>
+    {% endif %}
 </body>

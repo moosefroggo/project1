@@ -1,3 +1,4 @@
+import os
 from flask import Flask, session, request, render_template, redirect, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
@@ -28,7 +29,7 @@ def index():
     return render_template("index.html", logged_in = logged_in)
 @app.route("/logout")
 def logout():
-    session.pop("username", None)
+    session.pop("user_id", None)
     return(redirect(url_for('index')))
 @app.route("/registration", methods = ["GET", "POST"])
 def registration():
@@ -68,8 +69,11 @@ def login():
             query_result = db.execute(query, param).fetchone()
             pass_from_db = query_result[0]
             print(pass_from_db)
+            #Get user id from DB to store in session
+            user_id = db.execute("SELECT id FROM users WHERE username = :username", {"username": username}).fetchone()
+            print(user_id[0])
             if pass_from_db == password:                
-                session["username"] = username
+                session["user_id"] = user_id[0]
                 return "Logged In"
             else:
                 message = "Password is incorrect"
@@ -92,7 +96,7 @@ def search():
     # db.execute(db_query, args).fetchone()
     return render_template('books.html', books = books)
 
-@app.route("/book/<isbn>")
+@app.route("/book/<isbn>", methods = ["POST", "GET"])
 def book(isbn):
     query = 'SELECT * from books where isbn = :isbn'
     param = {'isbn': isbn}
@@ -101,7 +105,26 @@ def book(isbn):
     res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": api_key, "isbns": isbn})
     goodreads_data = res.json()
     book_data = goodreads_data["books"]
-    return render_template('book.html', book_result = book_result, book_data = book_data)
+    #Reviews data
+    query = 'SELECT user_id, username, title, rating, review from reviews left join books on reviews.book_id = books.id join users on reviews.user_id = users.id'
+    reviews_data = db.execute(query, param).fetchall()
+    #checking if user already left a review
+    did_user_review = False
+    for review in reviews_data:
+        print(review['review'])
+        if review['user_id'] == session["user_id"]:
+            did_user_review = True
+    print(did_user_review)
+    if request.method == "POST":
+        if not did_user_review:
+            review = request.form.get("review")
+            rating = request.form.get("score")
+            query = "INSERT into reviews(review, rating, user_id, book_id) Values(:review, :rating, :user_id, :book_id)"
+            param = {"review":review, "rating":rating, "user_id":session["user_id"], "book_id": book_result["id"]}
+            db.execute(query, param)
+            db.commit()
+    return render_template('book.html', book_result = book_result, book_data = book_data, reviews_data = reviews_data, did_user_review = did_user_review)
+
 def user_exists(username):
     query = "SELECT * from users WHERE username = :username"
     param = {"username": username}
@@ -110,7 +133,7 @@ def user_exists(username):
     else:
         return False
 def is_logged_in():
-    if 'username' in session:
+    if 'user_id' in session:
         return True
     else:
         return False
