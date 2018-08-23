@@ -1,5 +1,5 @@
-import os, base64
-from flask import Flask, session, request, render_template, redirect, url_for
+import os
+from flask import Flask, session, request, render_template, redirect, url_for, jsonify, abort
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -13,6 +13,7 @@ if not os.getenv("DATABASE_URL"):
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["JSON_SORT_KEYS"] = False
 Session(app)
 
 # Set up database
@@ -130,6 +131,17 @@ def book(isbn):
             db.commit()
     return render_template('book.html', book_result = book_result, book_data = book_data, reviews_data = reviews_data, did_user_review = did_user_review)
 
+@app.route("/api/<isbn>", methods = ["GET"])
+def api(isbn):
+    if isbn == None:
+        return "ISBN can't be empty"
+    query = "SELECT title, author, year, isbn, count(reviews) as review_count, avg(rating) as average_score from books left join reviews ON reviews.book_id = books.id WHERE isbn=:isbn GROUP BY title, author, year, isbn"
+    params = {"isbn": isbn}
+    book_data = db.execute(query, params).fetchone()
+    if book_data is None:
+        # return "No book with this isbn number exists"
+        abort(404)
+    return jsonify(dict(book_data))
 def user_exists(username):
     query = "SELECT * from users WHERE username = :username"
     param = {"username": username}
