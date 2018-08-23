@@ -1,11 +1,19 @@
+{% extends "layout.html" %}
 <body>
+    {% block content %}
     {% if logged_in %}
     <h1>Welcome back</h1>
     <form action="{{url_for('search')}}", method="POST">
-        <input type="search" name="query" placeholder="Enter ISBN or Title or Author name">
-        <button type="submit">Search</button>
+        <div class="row">
+            <div class = "six columns">
+                <label>Search for a book</label>
+                <input class="u-full-width" type="search" name="query" placeholder="Enter ISBN or Title or Author name">
+            </div>
+        </div>
+        <button class = "button-primary" type="submit">Search</button>
     </form>
     {% else %}
     <h1>To search for books please log in</h1>
     {% endif %}
+    {% endblock %}
 </body>

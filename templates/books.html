@@ -1,13 +1,16 @@
+{% extends "layout.html" %}
 <body>
-    <ul>
-    {% for book in books %}
-        <li>
-            <a id="{{book['isbn']}}" href="{{url_for('book', isbn = book['isbn'])}}">{{ book['title'] }}</a>
-            <p>{{book['isbn']}}</p>
-            <p>{{book['author']}}</p>
-            <p>{{book['year']}}</p>
-        </li>
-        <br>
-    {% endfor %}
-    </ul>
+    {% block content %}
+    <br>
+    <div class="row">
+        {% for book in books %}
+        <div class="ten columns">
+                <h1><a id="{{book['isbn']}}" href="{{url_for('book', isbn = book['isbn'])}}">{{ book['title'] }}</a></h1>
+                <p>{{book['isbn']}}</p>
+                <p>{{book['author']}}</p>
+                <p>{{book['year']}}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endblock %}
 </body>
