@@ -109,3 +109,4 @@ venv.bak/
 
 #filter out the script containing API keys
 goodreads.py
+sensitive.py

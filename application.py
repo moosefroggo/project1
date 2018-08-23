@@ -1,9 +1,9 @@
-import os
+import os, base64
 from flask import Flask, session, request, render_template, redirect, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-import requests, goodreads
+import requests, sensitive
 app = Flask(__name__)
 
 # Check for environment variable
@@ -20,7 +20,7 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 #Set up goodreads api key
-api_key = goodreads.API_KEY()
+api_key = sensitive.API_KEY()
 
 @app.route("/")
 def index():
@@ -43,8 +43,12 @@ def registration():
         if user_exists(username):
             return redirect(url_for('login'))
         else:
-            db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {"username": username, "password": password})
+            #Hashing the password
+            hashed_pw = sensitive.generate_hashedpw(password.encode('utf-8'))
+            
+            db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {"username": username, "password": hashed_pw})
             print(password)
+            
             db.commit()
             # parameter = {"username": username, "password": password}
             # db.execute(query, parameter)
@@ -68,11 +72,12 @@ def login():
             param = {"username": username}
             query_result = db.execute(query, param).fetchone()
             pass_from_db = query_result[0]
+            #Hashing the password
+            is_password_correct = sensitive.match_password(password.encode('utf-8'), bytes(pass_from_db))
             print(pass_from_db)
-            #Get user id from DB to store in session
-            user_id = db.execute("SELECT id FROM users WHERE username = :username", {"username": username}).fetchone()
-            print(user_id[0])
-            if pass_from_db == password:                
+            if is_password_correct: 
+                #Get user id from DB to store in session
+                user_id = db.execute("SELECT id FROM users WHERE username = :username", {"username": username}).fetchone()       
                 session["user_id"] = user_id[0]
                 return "Logged In"
             else:
