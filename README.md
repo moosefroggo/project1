@@ -5,4 +5,4 @@ Project details can be found here:
 https://docs.cs50.net/web/2018/w/projects/1/project1.html
 
 # Current progress:
-Backend is done for the most part, except some edge cases and exceptions that might need to be handled, which I will do while testing. Front end needs a lot of work since it is just working via links/urls for now.
+Backend is done for the most part, except some edge cases and exceptions that might need to be handled, which I will do while testing. Front end needs a lot of work since it is just working via links/urls for now. Added Skeleton framework for uniform frontend, I'm figuring out how to effectively use it with the design I have in mind, though it is very likely that I'll change it at the end.
